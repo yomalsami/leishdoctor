@@ -1,11 +1,11 @@
 let cropper;
-const URL = "./";  // The model is in the same directory as script.js
+const URL_PATH = "./";  // Model path
 let model, maxPredictions;
 
 // Load the image model
 async function loadModel() {
-    const modelURL = URL + "model.json";
-    const metadataURL = URL + "metadata.json";
+    const modelURL = URL_PATH + "model.json";
+    const metadataURL = URL_PATH + "metadata.json";
     model = await tmImage.load(modelURL, metadataURL);
     maxPredictions = model.getTotalClasses();
 
@@ -18,31 +18,16 @@ async function loadModel() {
     await model.predict(dummyCanvas);
 }
 
-// Function to convert base64 image to blob
-function base64ToBlob(base64, mime) {
-    const byteString = atob(base64.split(',')[1]);
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-    }
-    return new Blob([ab], { type: mime });
-}
-
-// Save the cropped image and return its URL
+// Save the cropped image and return its base64 URL
 function saveCroppedImage() {
     const canvas = cropper.getCroppedCanvas({
         width: 224,  // Resize the crop for the model
         height: 224
     });
 
-    // Convert canvas to base64 and save as blob
+    // Convert canvas to base64 image directly
     const base64Image = canvas.toDataURL('image/png');
-    const imageBlob = base64ToBlob(base64Image, 'image/png');
-
-    // Create URL for the blob
-    const savedImageURL = URL.createObjectURL(imageBlob);
-    return savedImageURL;
+    return base64Image;
 }
 
 // Initialize the model and set up event listeners on page load
@@ -91,12 +76,12 @@ window.onload = () => {
             // Reset the label container before prediction
             labelContainer.innerHTML = "";
 
-            // Save the cropped image first
-            const savedImageURL = saveCroppedImage();
+            // Save the cropped image as a base64 string
+            const base64Image = saveCroppedImage();
 
-            // Create a new image element from the saved blob URL
+            // Create a new image element from the base64 string
             const image = new Image();
-            image.src = savedImageURL;
+            image.src = base64Image;
 
             // Wait until the image is fully loaded before sending it to the model
             image.onload = async () => {
@@ -113,12 +98,9 @@ window.onload = () => {
                 // Hide loading indicator and re-enable the button
                 loadingIndicator.style.display = "none";
                 cropBtn.disabled = false;
-
-                // Clean up the blob URL after usage
-                URL.revokeObjectURL(savedImageURL);
             };
 
-            // In case image fails to load, handle it
+            // In case the image fails to load, handle it
             image.onerror = () => {
                 alert("Failed to load cropped image. Please try again.");
                 loadingIndicator.style.display = "none";
