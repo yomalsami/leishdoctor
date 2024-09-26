@@ -1,4 +1,4 @@
-const URL = "./";  // Replace with your actual model path
+const URL = "./";  // The model is in the same directory as script.js
 let model, maxPredictions;
 
 // Load the image model
@@ -9,20 +9,23 @@ async function loadModel() {
     maxPredictions = model.getTotalClasses();
 }
 
-// Initialize the model on page load
+// Initialize the model and set up event listeners on page load
 window.onload = () => {
     loadModel();
-};
 
-// Handle image upload and preview
-document.getElementById('imageUpload').addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        document.getElementById('preview').src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-});
+    // Attach event listener to the upload button
+    document.getElementById('imageUpload').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            document.getElementById('preview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Attach event listener to the "Identify Image" button
+    document.getElementById('identifyBtn').addEventListener('click', predict);
+};
 
 // Run prediction on the uploaded image
 async function predict() {
