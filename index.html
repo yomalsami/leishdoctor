@@ -48,7 +48,11 @@
             font-size: 1rem;
             transition: background-color 0.3s;
         }
-        button:hover {
+        button:disabled {
+            background-color: #b0b0b0;
+            cursor: not-allowed;
+        }
+        button:hover:enabled {
             background-color: #45a049;
         }
         #label-container {
@@ -62,6 +66,12 @@
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+        #loading {
+            display: none;
+            font-size: 1.2rem;
+            color: #4CAF50;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -73,6 +83,7 @@
     <br>
     <button type="button" id="cropBtn">Crop & Identify</button>
     <div id="label-container"></div>
+    <div id="loading">Loading... Please wait</div>
 
     <!-- TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
