@@ -1,3 +1,4 @@
+let cropper;
 const URL = "./";  // The model is in the same directory as script.js
 let model, maxPredictions;
 
@@ -13,36 +14,56 @@ async function loadModel() {
 window.onload = () => {
     loadModel();
 
-    // Attach event listener to the upload button
-    document.getElementById('imageUpload').addEventListener('change', function (event) {
+    const imageUpload = document.getElementById('imageUpload');
+    const preview = document.getElementById('preview');
+    const cropBtn = document.getElementById('cropBtn');
+
+    // When a new image is uploaded
+    imageUpload.addEventListener('change', function (event) {
         const file = event.target.files[0];
         const reader = new FileReader();
+
         reader.onload = function (e) {
-            document.getElementById('preview').src = e.target.result;
+            preview.src = e.target.result;
+            if (cropper) {
+                cropper.destroy(); // Destroy old cropper instance if exists
+            }
+            // Initialize the cropper on the uploaded image
+            cropper = new Cropper(preview, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 1,
+                responsive: true
+            });
         };
         reader.readAsDataURL(file);
     });
 
-    // Attach event listener to the "Identify Image" button
-    document.getElementById('identifyBtn').addEventListener('click', predict);
+    // When the crop button is clicked
+    cropBtn.addEventListener('click', async () => {
+        if (cropper && model) {
+            const canvas = cropper.getCroppedCanvas({
+                width: 224,  // Size for the model input
+                height: 224
+            });
+            const croppedImage = canvas.toDataURL('image/png');
+            
+            const image = new Image();
+            image.src = croppedImage;
+            
+            // Run the cropped image through the model
+            const prediction = await model.predict(image);
+            const labelContainer = document.getElementById('label-container');
+            labelContainer.innerHTML = "";  // Clear previous results
+
+            for (let i = 0; i < maxPredictions; i++) {
+                const classPrediction = `${prediction[i].className}: ${(prediction[i].probability * 100).toFixed(2)}%`;
+                const label = document.createElement("div");
+                label.innerHTML = classPrediction;
+                labelContainer.appendChild(label);
+            }
+        } else {
+            alert("Please upload an image and wait for the model to load.");
+        }
+    });
 };
-
-// Run prediction on the uploaded image
-async function predict() {
-    const image = document.getElementById('preview');
-    if (!model) {
-        alert("Model not loaded yet!");
-        return;
-    }
-
-    const prediction = await model.predict(image);
-    const labelContainer = document.getElementById('label-container');
-    labelContainer.innerHTML = "";  // Clear previous results
-
-    for (let i = 0; i < maxPredictions; i++) {
-        const classPrediction = `${prediction[i].className}: ${(prediction[i].probability * 100).toFixed(2)}%`;
-        const label = document.createElement("div");
-        label.innerHTML = classPrediction;
-        labelContainer.appendChild(label);
-    }
-}
