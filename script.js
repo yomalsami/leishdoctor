@@ -10,33 +10,6 @@ async function loadModel() {
     maxPredictions = model.getTotalClasses();
 }
 
-// Function to convert base64 image to blob
-function base64ToBlob(base64, mime) {
-    const byteString = atob(base64.split(',')[1]);
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-    }
-    return new Blob([ab], { type: mime });
-}
-
-// Save the cropped image and return its URL
-function saveCroppedImage() {
-    const canvas = cropper.getCroppedCanvas({
-        width: 224,  // Resize the crop for the model
-        height: 224
-    });
-
-    // Convert canvas to base64 and save as blob
-    const base64Image = canvas.toDataURL('image/png');
-    const imageBlob = base64ToBlob(base64Image, 'image/png');
-
-    // Create URL for the blob
-    const savedImageURL = URL.createObjectURL(imageBlob);
-    return savedImageURL;
-}
-
 // Initialize the model and set up event listeners on page load
 window.onload = () => {
     loadModel();
@@ -61,7 +34,6 @@ window.onload = () => {
             if (cropper) {
                 cropper.destroy(); // Destroy old cropper instance if it exists
             }
-
             // Initialize the cropper on the uploaded image
             cropper = new Cropper(preview, {
                 aspectRatio: 1,
@@ -80,15 +52,17 @@ window.onload = () => {
             loadingIndicator.style.display = "block";
             cropBtn.disabled = true;
 
-            // Save the cropped image first
-            const savedImageURL = saveCroppedImage();
+            const canvas = cropper.getCroppedCanvas({
+                width: 224,  // Size for the model input
+                height: 224
+            });
 
-            // Create a new image element from the saved blob URL
+            // Convert the canvas to an image and wait for it to load before predicting
+            const croppedImage = canvas.toDataURL('image/png');
             const image = new Image();
-            image.src = savedImageURL;
 
-            // Wait until the image is fully loaded before sending it to the model
             image.onload = async () => {
+                // Run the loaded cropped image through the model
                 const prediction = await model.predict(image);
 
                 // Reset the label container
@@ -104,10 +78,10 @@ window.onload = () => {
                 // Hide loading indicator and re-enable the button
                 loadingIndicator.style.display = "none";
                 cropBtn.disabled = false;
-
-                // Clean up the blob URL after usage
-                URL.revokeObjectURL(savedImageURL);
             };
+
+            // Set the image source to the cropped data URL
+            image.src = croppedImage;
         } else {
             alert("Please upload an image and wait for the model to load.");
         }
