@@ -3,94 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Identification with Cropping</title>
-    
-    <!-- Include Cropper.js CSS -->
+    <title>Image Identification</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
-
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            flex-direction: column;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            text-align: center;
+            padding: 20px;
         }
         h1 {
-            color: #4CAF50;
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+            color: #333;
         }
-        input[type="file"] {
-            margin-bottom: 20px;
-        }
-        .image-container {
+        #preview {
             max-width: 500px;
-            max-height: 500px;
-            overflow: hidden;
+            border: 1px solid #ddd;
             margin-bottom: 20px;
         }
-        img {
-            max-width: 100%;
-        }
-        button {
+        #identifyBtn {
             background-color: #4CAF50;
             color: white;
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
+            margin-top: 10px;
         }
-        button:disabled {
-            background-color: #b0b0b0;
+        #identifyBtn:disabled {
+            background-color: #ddd;
             cursor: not-allowed;
-        }
-        button:hover:enabled {
-            background-color: #45a049;
         }
         #label-container {
             margin-top: 20px;
-            font-size: 1.2rem;
-        }
-        #label-container div {
-            background-color: #f8f8f8;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         #loading {
             display: none;
-            font-size: 1.2rem;
-            color: #4CAF50;
             margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <h1>Image Identification</h1>
+    
     <input type="file" accept="image/*" id="imageUpload">
-    <div class="image-container">
-        <img id="preview" />
-    </div>
     <br>
-    <button type="button" id="cropBtn">Crop & Identify</button>
+    <img id="preview" alt="Image Preview" />
+    <br>
+    <button type="button" id="cropBtn">Crop and Identify</button>
+
+    <div id="loading">
+        <img src="https://i.gifer.com/YCZH.gif" alt="Loading..." width="50px">
+    </div>
+    
     <div id="label-container"></div>
-    <div id="loading">Loading... Please wait</div>
 
     <!-- TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 
     <!-- Teachable Machine Image library -->
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-    
+
     <!-- Cropper.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
