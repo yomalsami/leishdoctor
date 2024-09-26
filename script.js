@@ -4,7 +4,7 @@ const resultElement = document.getElementById('result');
 const imageUpload = document.getElementById('imageUpload');
 
 async function loadModel() {
-    model = await tmImage.load('model.json', 'weights.bin');
+    model = await tmImage.load('model.json', 'weights.bin','metadata.json');
     console.log("Model Loaded");
 }
 
