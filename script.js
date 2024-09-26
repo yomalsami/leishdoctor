@@ -2,10 +2,22 @@ let model;
 const imageElement = document.getElementById('preview');
 const resultElement = document.getElementById('result');
 const imageUpload = document.getElementById('imageUpload');
+const identifyBtn = document.getElementById('identifyBtn');
+
+// Disable the button initially
+identifyBtn.disabled = true;
 
 async function loadModel() {
-    model = await tmImage.load('model.json', 'weights.bin','metadata.json');
-    console.log("Model Loaded");
+    try {
+        // Load the model (no need to load metadata.json manually)
+        model = await tmImage.load('model.json', 'weights.bin');
+        console.log("Model Loaded");
+
+        // Enable the button after the model is loaded
+        identifyBtn.disabled = false;
+    } catch (error) {
+        console.error("Error loading model:", error);
+    }
 }
 
 imageUpload.addEventListener('change', (event) => {
@@ -19,7 +31,7 @@ imageUpload.addEventListener('change', (event) => {
     reader.readAsDataURL(file);
 });
 
-document.getElementById('identifyBtn').addEventListener('click', async () => {
+identifyBtn.addEventListener('click', async () => {
     if (!model) {
         alert("Model not loaded yet!");
         return;
@@ -27,7 +39,7 @@ document.getElementById('identifyBtn').addEventListener('click', async () => {
 
     const prediction = await model.predict(imageElement);
     let resultText = "Results: \n";
-    
+
     prediction.forEach(p => {
         resultText += `${p.className}: ${(p.probability * 100).toFixed(2)}%\n`;
     });
@@ -35,6 +47,7 @@ document.getElementById('identifyBtn').addEventListener('click', async () => {
     resultElement.textContent = resultText;
 });
 
+// Load the model when the page loads
 window.onload = () => {
     loadModel();
 };
