@@ -9,10 +9,11 @@ identifyBtn.disabled = true;
 
 async function loadModel() {
     try {
-        // Load the model (no need to load metadata.json manually)
+        console.log("Loading the model...");
+        // Load the model
         model = await tmImage.load('model.json', 'weights.bin');
-        console.log("Model Loaded");
-
+        console.log("Model Loaded Successfully");
+        
         // Enable the button after the model is loaded
         identifyBtn.disabled = false;
     } catch (error) {
@@ -37,6 +38,7 @@ identifyBtn.addEventListener('click', async () => {
         return;
     }
 
+    console.log("Running prediction...");
     const prediction = await model.predict(imageElement);
     let resultText = "Results: \n";
 
