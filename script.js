@@ -17,6 +17,8 @@ window.onload = () => {
     const imageUpload = document.getElementById('imageUpload');
     const preview = document.getElementById('preview');
     const cropBtn = document.getElementById('cropBtn');
+    const loadingIndicator = document.getElementById('loading');
+    const labelContainer = document.getElementById('label-container');
 
     // When a new image is uploaded
     imageUpload.addEventListener('change', function (event) {
@@ -25,8 +27,12 @@ window.onload = () => {
 
         reader.onload = function (e) {
             preview.src = e.target.result;
+
+            // Reset label container and hide previous results
+            labelContainer.innerHTML = "";
+
             if (cropper) {
-                cropper.destroy(); // Destroy old cropper instance if exists
+                cropper.destroy(); // Destroy old cropper instance if it exists
             }
             // Initialize the cropper on the uploaded image
             cropper = new Cropper(preview, {
@@ -42,6 +48,10 @@ window.onload = () => {
     // When the crop button is clicked
     cropBtn.addEventListener('click', async () => {
         if (cropper && model) {
+            // Show loading indicator and disable the button
+            loadingIndicator.style.display = "block";
+            cropBtn.disabled = true;
+
             const canvas = cropper.getCroppedCanvas({
                 width: 224,  // Size for the model input
                 height: 224
@@ -50,11 +60,12 @@ window.onload = () => {
             
             const image = new Image();
             image.src = croppedImage;
-            
+
             // Run the cropped image through the model
             const prediction = await model.predict(image);
-            const labelContainer = document.getElementById('label-container');
-            labelContainer.innerHTML = "";  // Clear previous results
+
+            // Reset the label container
+            labelContainer.innerHTML = "";
 
             for (let i = 0; i < maxPredictions; i++) {
                 const classPrediction = `${prediction[i].className}: ${(prediction[i].probability * 100).toFixed(2)}%`;
@@ -62,6 +73,10 @@ window.onload = () => {
                 label.innerHTML = classPrediction;
                 labelContainer.appendChild(label);
             }
+
+            // Hide loading indicator and re-enable the button
+            loadingIndicator.style.display = "none";
+            cropBtn.disabled = false;
         } else {
             alert("Please upload an image and wait for the model to load.");
         }
