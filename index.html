@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Identification</title>
+    <title>Image Identification with Cropping</title>
+    
+    <!-- Include Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -25,11 +29,14 @@
         input[type="file"] {
             margin-bottom: 20px;
         }
-        img {
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .image-container {
+            max-width: 500px;
+            max-height: 500px;
+            overflow: hidden;
             margin-bottom: 20px;
+        }
+        img {
+            max-width: 100%;
         }
         button {
             background-color: #4CAF50;
@@ -60,10 +67,11 @@
 <body>
     <h1>Image Identification</h1>
     <input type="file" accept="image/*" id="imageUpload">
+    <div class="image-container">
+        <img id="preview" />
+    </div>
     <br>
-    <img id="preview" style="max-width: 500px;" />
-    <br>
-    <button type="button" id="identifyBtn">Identify Image</button>
+    <button type="button" id="cropBtn">Crop & Identify</button>
     <div id="label-container"></div>
 
     <!-- TensorFlow.js -->
@@ -71,6 +79,9 @@
 
     <!-- Teachable Machine Image library -->
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    
+    <!-- Cropper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
     <!-- Link to the external script -->
     <script src="script.js"></script>
