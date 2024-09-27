@@ -102,6 +102,9 @@ window.onload = () => {
             });
         };
         reader.readAsDataURL(file);
+
+        // Reset the chart and hide previous results when a new image is uploaded
+        predictionChart.updateChart(0, 0);
     });
 
     // When the crop button is clicked
