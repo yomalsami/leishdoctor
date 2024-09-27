@@ -46,6 +46,7 @@ async function loadModel() {
     model = await tmImage.load(modelURL, metadataURL);
     maxPredictions = model.getTotalClasses();
 
+    // Perform a dummy prediction to warm up the model
     const dummyCanvas = document.createElement('canvas');
     dummyCanvas.width = 224;
     dummyCanvas.height = 224;
@@ -64,14 +65,15 @@ function saveCroppedImage() {
 }
 
 window.onload = () => {
-    loadModel();
-    predictionChart = new PredictionChart('predictionChart'); 
+    loadModel(); // Load model on page load
+    predictionChart = new PredictionChart('predictionChart'); // Initialize chart
 
     const imageUpload = document.getElementById('imageUpload');
     const preview = document.getElementById('preview');
     const cropBtn = document.getElementById('cropBtn');
     const loadingIndicator = document.getElementById('loading');
 
+    // Handle image upload and cropping functionality
     imageUpload.addEventListener('change', function (event) {
         const file = event.target.files[0];
         const reader = new FileReader();
@@ -81,9 +83,10 @@ window.onload = () => {
             preview.style.display = 'block'; // Show the preview
 
             if (cropper) {
-                cropper.destroy();
+                cropper.destroy(); // Destroy previous cropper instance
             }
 
+            // Initialize the Cropper.js instance
             cropper = new Cropper(preview, {
                 aspectRatio: 1,
                 viewMode: 1,
@@ -96,13 +99,15 @@ window.onload = () => {
         };
         reader.readAsDataURL(file);
 
+        // Reset chart data when a new image is uploaded
         predictionChart.updateChart(0, 0);
     });
 
+    // Handle the crop and identify button click
     cropBtn.addEventListener('click', async () => {
         if (cropper && model) {
-            loadingIndicator.style.display = "block";
-            cropBtn.disabled = true;
+            loadingIndicator.style.display = "block"; // Show loading indicator
+            cropBtn.disabled = true; // Disable button while processing
 
             const base64Image = saveCroppedImage();
             const image = new Image();
@@ -117,10 +122,11 @@ window.onload = () => {
                 const positiveLeish = prediction[positiveLeishIndex].probability;
                 const negativeLeish = prediction[negativeLeishIndex].probability;
 
+                // Update the chart with new predictions
                 predictionChart.updateChart(positiveLeish, negativeLeish);
 
-                loadingIndicator.style.display = "none";
-                cropBtn.disabled = false;
+                loadingIndicator.style.display = "none"; // Hide loading indicator
+                cropBtn.disabled = false; // Re-enable button
             };
 
             image.onerror = () => {
