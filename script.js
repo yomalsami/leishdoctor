@@ -1,6 +1,47 @@
+class PredictionChart {
+    constructor(canvasId) {
+        this.ctx = document.getElementById(canvasId).getContext('2d');
+        this.chart = null;
+        this.initChart();
+    }
+
+    // Initialize the chart with default values
+    initChart() {
+        this.chart = new Chart(this.ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Positive for Leishmaniasis', 'Negative for Leishmaniasis'],
+                datasets: [{
+                    label: 'Prediction Confidence (%)',
+                    data: [0, 0], // Initial values
+                    backgroundColor: ['#4CAF50', '#FF5733'],
+                    borderColor: ['#388E3C', '#C70039'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+
+    // Update the chart with new prediction data
+    updateChart(positive, negative) {
+        this.chart.data.datasets[0].data = [positive * 100, negative * 100]; // Scale to percentage
+        this.chart.update();
+    }
+}
+
+// Global variables
 let cropper;
 const URL_PATH = "./";  // Model path
 let model, maxPredictions;
+let predictionChart;
 
 // Load the image model
 async function loadModel() {
@@ -33,12 +74,12 @@ function saveCroppedImage() {
 // Initialize the model and set up event listeners on page load
 window.onload = () => {
     loadModel();
+    predictionChart = new PredictionChart('predictionChart'); // Create the prediction chart
 
     const imageUpload = document.getElementById('imageUpload');
     const preview = document.getElementById('preview');
     const cropBtn = document.getElementById('cropBtn');
     const loadingIndicator = document.getElementById('loading');
-    const labelContainer = document.getElementById('label-container');
 
     // When a new image is uploaded
     imageUpload.addEventListener('change', function (event) {
@@ -47,9 +88,6 @@ window.onload = () => {
 
         reader.onload = function (e) {
             preview.src = e.target.result;
-
-            // Reset label container and hide previous results
-            labelContainer.innerHTML = "";
 
             if (cropper) {
                 cropper.destroy(); // Destroy old cropper instance if it exists
@@ -73,9 +111,6 @@ window.onload = () => {
             loadingIndicator.style.display = "block";
             cropBtn.disabled = true;
 
-            // Reset the label container before prediction
-            labelContainer.innerHTML = "";
-
             // Save the cropped image as a base64 string
             const base64Image = saveCroppedImage();
 
@@ -87,13 +122,15 @@ window.onload = () => {
             image.onload = async () => {
                 const prediction = await model.predict(image);
 
-                // Display the prediction results
-                for (let i = 0; i < maxPredictions; i++) {
-                    const classPrediction = `${prediction[i].className}: ${(prediction[i].probability * 100).toFixed(2)}%`;
-                    const label = document.createElement("div");
-                    label.innerHTML = classPrediction;
-                    labelContainer.appendChild(label);
-                }
+                // Extract probabilities for Positive and Negative Leishmaniasis
+                const positiveLeishIndex = prediction.findIndex(p => p.className.toLowerCase().includes('positive'));
+                const negativeLeishIndex = prediction.findIndex(p => p.className.toLowerCase().includes('negative'));
+
+                const positiveLeish = prediction[positiveLeishIndex].probability;
+                const negativeLeish = prediction[negativeLeishIndex].probability;
+
+                // Update the chart with prediction data
+                predictionChart.updateChart(positiveLeish, negativeLeish);
 
                 // Hide loading indicator and re-enable the button
                 loadingIndicator.style.display = "none";
