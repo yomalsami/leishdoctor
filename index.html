@@ -17,10 +17,10 @@
         }
         #preview {
             max-width: 500px;
-            border: 1px solid #ddd;
+            border: 2px solid #ddd;
             margin-bottom: 20px;
         }
-        #identifyBtn {
+        #cropBtn {
             background-color: #4CAF50;
             color: white;
             padding: 10px 20px;
@@ -29,13 +29,17 @@
             cursor: pointer;
             margin-top: 10px;
         }
-        #identifyBtn:disabled {
+        #cropBtn:disabled {
             background-color: #ddd;
             cursor: not-allowed;
         }
         #loading {
             display: none;
             margin-top: 20px;
+        }
+        #predictionChart {
+            max-width: 500px;
+            margin: 20px auto;
         }
         canvas {
             max-width: 500px;
