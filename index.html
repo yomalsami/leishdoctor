@@ -4,34 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LeishDoctor - Leishmaniasis Prediction</title>
-    
-    <!-- Include Cropper.js CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
-
     <style>
-        /* General styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f7fa;
             text-align: center;
             padding: 20px;
+            overflow-x: hidden;
         }
 
         h1 {
             color: #333;
-            margin-bottom: 20px;
         }
 
-        /* Image preview styling */
         #preview {
             max-width: 100%;
             max-height: 300px;
+            width: auto;
+            height: auto;
             display: none;
             border: 2px solid #ddd;
             margin-bottom: 20px;
         }
 
-        /* Crop and identify button */
         #cropBtn {
             background-color: #4CAF50;
             color: white;
@@ -42,50 +38,53 @@
             margin-top: 10px;
         }
 
-        /* Disabled button styling */
         #cropBtn:disabled {
             background-color: #ddd;
             cursor: not-allowed;
         }
 
-        /* Loading icon styling */
         #loading {
             display: none;
             margin-top: 20px;
         }
 
-        /* Chart container */
         #predictionChart {
-            max-width: 500px;
+            max-width: 100%;
             margin: 20px auto;
+            padding: 0 20px;
         }
 
-        /* Canvas styling */
         canvas {
             max-width: 500px;
             margin-top: 20px;
         }
+
+        /* Ensure the layout doesn't push the button too far down */
+        #container {
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     </style>
 </head>
-
 <body>
     <h1>LeishDoctor - Leishmaniasis Prediction</h1>
+    
+    <div id="container">
+        <input type="file" accept="image/*" id="imageUpload">
+        <br>
+        <img id="preview" alt="Image Preview" />
+        <br>
+        <button type="button" id="cropBtn">Crop and Identify</button>
 
-    <!-- File input and image preview -->
-    <input type="file" accept="image/*" id="imageUpload">
-    <br>
-    <img id="preview" alt="Image Preview" />
-    <br>
-
-    <!-- Crop and Identify button -->
-    <button type="button" id="cropBtn">Crop and Identify</button>
-
-    <!-- Loading indicator -->
-    <div id="loading">
-        <img src="https://i.gifer.com/YCZH.gif" alt="Loading..." width="50px">
+        <div id="loading">
+            <img src="https://i.gifer.com/YCZH.gif" alt="Loading..." width="50px">
+        </div>
     </div>
 
-    <!-- Chart.js chart -->
     <canvas id="predictionChart"></canvas>
 
     <!-- TensorFlow.js -->
@@ -100,7 +99,7 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Link to external script -->
+    <!-- Link to the external script -->
     <script src="script.js"></script>
 </body>
 </html>
